@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Utilisateurs{% endblock %}
+{% block page_title %}Utilisateurs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>🔑 Utilisateurs</h1>
+  <a href="{{ url_for('users.new_user') }}" class="btn btn-primary">+ Ajouter</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead><tr><th>Identifiant</th><th>Nom complet</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Dernière connexion</th><th></th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td style="font-weight:600;">{{ u.username }}</td>
+          <td>{{ u.nom_complet or '-' }}</td>
+          <td style="color:var(--text-muted);">{{ u.email }}</td>
+          <td><span class="status-badge status-brouillon">{{ u.role_label }}</span></td>
+          <td>
+            {% if u.actif %}<span class="status-badge status-payee">Actif</span>
+            {% else %}<span class="status-badge status-annule">Inactif</span>{% endif %}
+          </td>
+          <td style="color:var(--text-muted);font-size:0.82rem;">{{ u.derniere_connexion.strftime('%d/%m/%Y %H:%M') if u.derniere_connexion else 'Jamais' }}</td>
+          <td><a href="{{ url_for('users.edit_user', uid=u.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

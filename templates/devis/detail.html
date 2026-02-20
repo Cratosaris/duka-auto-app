@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}{{ devis.numero_devis }}{% endblock %}
+{% block page_title %}Devis {{ devis.numero_devis }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>📄 {{ devis.numero_devis }}</h1>
+    <div class="page-header-sub">
+      <span class="status-badge status-{{ devis.statut }}">{{ devis.statut }}</span>
+      &nbsp;{{ devis.vehicule.immatriculation }} · {{ devis.vehicule.client.nom_complet }}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('devis_bp.telecharger_pdf', did=devis.id) }}" class="btn btn-outline-secondary">📥 Télécharger PDF</a>
+    <a href="{{ url_for('devis_bp.index') }}" class="btn btn-outline-secondary">← Retour</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header">🚗 Détails</div>
+      <div class="card-body">
+        <p><strong>Véhicule :</strong> {{ devis.vehicule.immatriculation }} {{ devis.vehicule.marque }} {{ devis.vehicule.modele }}</p>
+        <p><strong>Client :</strong> {{ devis.vehicule.client.nom_complet }}</p>
+        <p><strong>Tél :</strong> {{ devis.vehicule.client.telephone or '-' }}</p>
+        <p><strong>Technicien :</strong> {{ devis.technicien.nom_complet if devis.technicien else '-' }}</p>
+        <p><strong>Date validité :</strong> {{ devis.date_validite.strftime('%d/%m/%Y') if devis.date_validite else '-' }}</p>
+        <hr>
+        <p><strong>Panne :</strong> {{ devis.description_panne or '-' }}</p>
+        {% if devis.notes %}<p style="color:var(--text-muted);font-size:0.82rem;">{{ devis.notes }}</p>{% endif %}
+      </div>
+    </div>
+
+    {% if devis.statut == 'brouillon' %}
+    <div class="card mb-3">
+      <div class="card-header">🔄 Actions</div>
+      <div class="card-body d-flex flex-column gap-2">
+        <form method="POST" action="{{ url_for('devis_bp.accepter', did=devis.id) }}">
+          <button class="btn btn-success w-100">✅ Accepter → Créer OR</button>
+        </form>
+        <form method="POST" action="{{ url_for('devis_bp.changer_statut', did=devis.id) }}">
+          <input type="hidden" name="statut" value="refuse">
+          <button class="btn btn-outline-secondary w-100">❌ Refuser</button>
+        </form>
+      </div>
+    </div>
+    {% elif devis.statut == 'accepte' and devis.reparation %}
+    <div class="card">
+      <div class="card-body">
+        <p style="color:var(--success);">✅ Devis accepté</p>
+        <a href="{{ url_for('reparations.detail', rid=devis.reparation.id) }}" class="btn btn-primary w-100">
+          🔧 Voir OR {{ devis.reparation.numero_or }}
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">📋 Lignes du devis</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>Désignation</th><th>Qté</th><th>Prix unitaire</th><th>Sous-total</th></tr></thead>
+          <tbody>
+            {% for l in devis.lignes %}
+            <tr>
+              <td>{{ l.designation }}</td>
+              <td>{{ l.quantite }}</td>
+              <td>{{ l.prix_unitaire | fbu }}</td>
+              <td>{{ l.sous_total | fbu }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr><td colspan="3" style="text-align:right;color:var(--text-muted);">Main d'œuvre</td><td>{{ devis.montant_mo | fbu }}</td></tr>
+            <tr><td colspan="3" style="text-align:right;color:var(--text-muted);">Total HT</td><td>{{ devis.montant_ht | fbu }}</td></tr>
+            <tr><td colspan="3" style="text-align:right;color:var(--text-muted);">TVA {{ devis.taux_tva }}%</td><td>{{ devis.montant_tva | fbu }}</td></tr>
+            <tr style="background:var(--dark3);">
+              <td colspan="3" style="text-align:right;font-weight:700;">TOTAL TTC</td>
+              <td style="font-weight:700;font-size:1.1rem;">{{ devis.montant_ttc | fbu }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Nouvelle Réception{% endblock %}
+{% block page_title %}Nouvelle Réception Véhicule{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>🚗 Réception Véhicule</h1>
+  <a href="{{ url_for('reparations.index') }}" class="btn btn-outline-secondary">← Retour</a>
+</div>
+<div class="card" style="max-width:860px;">
+  <div class="card-body">
+    <form method="POST">
+      <h6 style="color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">
+        🚗 Informations Véhicule
+      </h6>
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <label class="form-label">Immatriculation *</label>
+          <input type="text" name="immatriculation" class="form-control text-uppercase"
+                 required placeholder="ex: BB 1234 A">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Marque</label>
+          <select name="marque" class="form-select">
+            <option value="">-- Sélectionner --</option>
+            {% for m in ['Toyota','Nissan','Honda','Mitsubishi','Hyundai','Kia','Suzuki','Mazda','Ford','Mercedes','BMW','Audi','Volkswagen','Peugeot','Renault','Autre'] %}
+            <option>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Modèle</label>
+          <input type="text" name="modele" class="form-control" placeholder="ex: Corolla, Hilux">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Année</label>
+          <input type="number" name="annee" class="form-control"
+                 min="1980" max="2026" placeholder="2020">
+        </div>
+        <div class="col-md-1">
+          <label class="form-label">Couleur</label>
+          <input type="text" name="couleur" class="form-control" placeholder="Blanc">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Kilométrage entrée</label>
+          <input type="number" name="kilometrage_entree" class="form-control" min="0">
+        </div>
+      </div>
+
+      <hr>
+      <h6 style="color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">
+        👤 Client (si nouveau véhicule)
+      </h6>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Client existant</label>
+          <select name="client_id" class="form-select">
+            <option value="">-- Sélectionner un client --</option>
+            {% for c in clients %}
+            <option value="{{ c.id }}">{{ c.nom_complet }}{% if c.telephone %} — {{ c.telephone }}{% endif %}</option>
+            {% endfor %}
+          </select>
+          <div class="form-text">Obligatoire si le véhicule est nouveau</div>
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+          <a href="{{ url_for('clients.new_client') }}" class="btn btn-outline-secondary w-100" target="_blank">
+            + Créer un nouveau client (nouvel onglet)
+          </a>
+        </div>
+      </div>
+
+      <hr>
+      <h6 style="color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">
+        🔧 Panne & Assignation
+      </h6>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Technicien assigné</label>
+          <select name="technicien_id" class="form-select">
+            <option value="">-- Non assigné --</option>
+            {% for e in employes %}
+            <option value="{{ e.id }}">{{ e.nom_complet }}{% if e.poste %} ({{ e.poste }}){% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">TVA applicable</label>
+          <select name="taux_tva" class="form-select">
+            <option value="18">18% — Standard OBR</option>
+            <option value="10">10% — Réduit</option>
+            <option value="0">0% — Exonéré</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description de la panne *</label>
+          <textarea name="description_panne" class="form-control" rows="3" required
+                    placeholder="Décrivez ce que le client a signalé..."></textarea>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary" style="padding:10px 28px;">
+            ✅ Créer l'Ordre de Réparation
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

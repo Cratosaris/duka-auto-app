@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Stock{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>📦 Stock de pièces</h2>
+  <div>
+    <a href="{{ url_for('stock.fournisseurs') }}" class="btn btn-outline-secondary me-2">🏭 Fournisseurs</a>
+    <a href="{{ url_for('stock.new_piece') }}" class="btn btn-dark">+ Ajouter pièce</a>
+  </div>
+</div>
+{% if critiques %}
+<div class="alert alert-danger">
+  ⚠️ <strong>{{ critiques|length }} pièce(s) en stock critique :</strong>
+  {{ critiques | map(attribute='nom') | join(', ') }}
+</div>
+{% endif %}
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr><th>Référence</th><th>Nom</th><th>Catégorie</th><th>Stock</th><th>Seuil</th><th>Prix vente</th><th>Fournisseur</th></tr>
+      </thead>
+      <tbody>
+        {% for p in pieces %}
+        <tr class="{{ 'table-danger' if p.stock_critique }}">
+          <td><code>{{ p.reference }}</code></td>
+          <td>{{ p.nom }}</td>
+          <td>{{ p.categorie or '-' }}</td>
+          <td><strong>{{ p.quantite_stock }}</strong></td>
+          <td>{{ p.seuil_critique }}</td>
+          <td>{{ p.prix_vente | fbu }}</td>
+          <td>{{ p.fournisseur.nom if p.fournisseur else '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-3">Aucune pièce</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

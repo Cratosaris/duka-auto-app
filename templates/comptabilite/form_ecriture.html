@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Nouvelle écriture{% endblock %}
+{% block content %}
+<h2 class="mb-4">Nouvelle écriture comptable</h2>
+<div class="card shadow-sm col-md-6">
+  <div class="card-body">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Date</label>
+          <input type="date" name="date_ecriture" class="form-control" value="{{ today_str }}"></div>
+        <div class="col-md-6"><label class="form-label">Type *</label>
+          <select name="type_ecriture" class="form-select" required>
+            <option value="recette">Recette</option>
+            <option value="depense">Dépense</option>
+          </select></div>
+        <div class="col-md-6"><label class="form-label">Catégorie</label>
+          <input type="text" name="categorie" class="form-control" placeholder="ex: carburant, loyer..."></div>
+        <div class="col-md-6"><label class="form-label">Montant (FBu) *</label>
+          <input type="number" name="montant" class="form-control" min="0" required></div>
+        <div class="col-12"><label class="form-label">Description *</label>
+          <input type="text" name="description" class="form-control" required></div>
+        <div class="col-12"><label class="form-label">Référence</label>
+          <input type="text" name="reference" class="form-control" placeholder="N° facture, bon..."></div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-dark">💾 Enregistrer</button>
+          <a href="{{ url_for('comptabilite.index') }}" class="btn btn-outline-secondary ms-2">Annuler</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

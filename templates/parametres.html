@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Paramètres{% endblock %}
+{% block page_title %}Paramètres Garage{% endblock %}
+{% block content %}
+<div class="page-header"><h1>⚙️ Paramètres du Garage</h1></div>
+<div class="card" style="max-width:700px;">
+  <div class="card-body">
+    <form method="POST" enctype="multipart/form-data">
+      <div class="row g-3">
+        <div class="col-md-8"><label class="form-label">Nom du garage *</label>
+          <input type="text" name="nom_garage" class="form-control" value="{{ cfg.nom_garage }}" required></div>
+        <div class="col-md-4"><label class="form-label">Devise</label>
+          <input type="text" class="form-control" value="FBu" readonly style="color:var(--text-muted);"></div>
+        <div class="col-12"><label class="form-label">Slogan</label>
+          <input type="text" name="slogan" class="form-control" value="{{ cfg.slogan or '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Téléphone</label>
+          <input type="text" name="telephone" class="form-control" value="{{ cfg.telephone or '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ cfg.email or '' }}"></div>
+        <div class="col-md-6"><label class="form-label">NIF (fiscal)</label>
+          <input type="text" name="numero_nif" class="form-control" value="{{ cfg.numero_nif or '' }}" placeholder="Ex: 4000XXXXXXXX"></div>
+        <div class="col-md-6"><label class="form-label">N° Registre de Commerce</label>
+          <input type="text" name="numero_rc" class="form-control" value="{{ cfg.numero_rc or '' }}"></div>
+        <div class="col-12"><label class="form-label">Adresse complète</label>
+          <textarea name="adresse" class="form-control" rows="2">{{ cfg.adresse or '' }}</textarea></div>
+        <div class="col-12">
+          <label class="form-label">Logo du garage</label>
+          {% if cfg.logo_filename %}
+          <div class="mb-2 d-flex align-items-center gap-3">
+            <img src="{{ url_for('uploaded_logo', filename=cfg.logo_filename) }}" height="52" style="border-radius:8px;border:1px solid var(--border);" alt="logo">
+            <span style="color:var(--text-muted);font-size:0.82rem;">Logo actuel</span>
+          </div>
+          {% endif %}
+          <input type="file" name="logo" class="form-control" accept="image/*">
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">PNG, JPG, WEBP — max 5 Mo. Utilisé sur les factures et devis PDF.</div>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">💾 Enregistrer les paramètres</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

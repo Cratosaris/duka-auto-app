@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Pointage{% endblock %}
+{% block content %}
+<h2 class="mb-4">⏱ Pointage du {{ today.strftime('%d/%m/%Y') }}</h2>
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr><th>Employé</th><th>Arrivée</th><th>Départ</th><th>Durée</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for e in employes %}
+        {% set p = presences.get(e.id) %}
+        <tr>
+          <td>{{ e.nom_complet }}</td>
+          <td>{{ p.heure_entree.strftime('%H:%M') if p and p.heure_entree else '-' }}</td>
+          <td>{{ p.heure_sortie.strftime('%H:%M') if p and p.heure_sortie else '-' }}</td>
+          <td>{{ p.duree_heures ~ 'h' if p and p.heure_sortie else '-' }}</td>
+          <td>
+            {% if not p or not p.heure_entree %}
+            <form method="POST" class="d-inline">
+              <input type="hidden" name="employe_id" value="{{ e.id }}">
+              <input type="hidden" name="action" value="checkin">
+              <button class="btn btn-sm btn-success">✅ Arrivée</button>
+            </form>
+            {% elif not p.heure_sortie %}
+            <form method="POST" class="d-inline">
+              <input type="hidden" name="employe_id" value="{{ e.id }}">
+              <input type="hidden" name="action" value="checkout">
+              <button class="btn btn-sm btn-warning">🚪 Départ</button>
+            </form>
+            {% else %}
+            <span class="badge bg-success">Terminé</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Modifier' if fournisseur else 'Nouveau' }} Fournisseur{% endblock %}
+{% block page_title %}{{ 'Modifier' if fournisseur else 'Nouveau' }} Fournisseur{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>🏭 {{ 'Modifier' if fournisseur else 'Nouveau' }} Fournisseur</h1>
+  <a href="{{ url_for('stock.fournisseurs') }}" class="btn btn-outline-secondary">← Retour</a>
+</div>
+<div class="card" style="max-width:680px;">
+  <div class="card-body">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Nom du fournisseur *</label>
+          <input type="text" name="nom" class="form-control"
+                 value="{{ fournisseur.nom if fournisseur else '' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Personne contact</label>
+          <input type="text" name="contact" class="form-control"
+                 value="{{ fournisseur.contact if fournisseur else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Téléphone</label>
+          <input type="text" name="telephone" class="form-control"
+                 value="{{ fournisseur.telephone if fournisseur else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control"
+                 value="{{ fournisseur.email if fournisseur else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">NIF / Numéro fiscal</label>
+          <input type="text" name="nif" class="form-control"
+                 value="{{ fournisseur.nif if fournisseur else '' }}"
+                 placeholder="Ex: 4000XXXXXXXX">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Type</label>
+          <select name="type_fourn" class="form-select">
+            <option value="local"
+              {{ 'selected' if not fournisseur or fournisseur.type_fourn == 'local' }}>
+              🏠 Local (Burundi)
+            </option>
+            <option value="importe"
+              {{ 'selected' if fournisseur and fournisseur.type_fourn == 'importe' }}>
+              ✈️ Importé
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Pays d'origine</label>
+          <select name="pays_origine" class="form-select">
+            {% for pays in ['Burundi','Rwanda','Kenya','Tanzanie','Ouganda','Chine','Dubaï (EAU)','Inde','Japon','Europe','Autre'] %}
+            <option {{ 'selected' if fournisseur and fournisseur.pays_origine == pays }}>{{ pays }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if fournisseur %}
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check ms-2">
+            <input class="form-check-input" type="checkbox" name="actif" id="actif"
+                   {{ 'checked' if fournisseur.actif }}>
+            <label class="form-check-label" for="actif">Fournisseur actif</label>
+          </div>
+        </div>
+        {% endif %}
+        <div class="col-12">
+          <label class="form-label">Adresse</label>
+          <textarea name="adresse" class="form-control" rows="2">{{ fournisseur.adresse if fournisseur else '' }}</textarea>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+          <a href="{{ url_for('stock.fournisseurs') }}"
+             class="btn btn-outline-secondary">Annuler</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

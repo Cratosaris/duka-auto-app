@@ -1,0 +1,49 @@
+#version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: duka_db
+    restart: always
+    environment:
+      POSTGRES_DB: duka_auto
+      POSTGRES_USER: duka_user
+      POSTGRES_PASSWORD: duka_pass_2024
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - duka_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duka_user -d duka_auto"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: duka_web
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://duka_user:duka_pass_2024@db:5432/duka_auto
+      SECRET_KEY: duka-secret-key-change-me-2024
+      FLASK_ENV: production
+    ports:
+      - "5002:5002"
+    volumes:
+      - uploads_data:/app/uploads
+      - ./static:/app/static
+    networks:
+      - duka_net
+
+volumes:
+  pg_data:
+    driver: local
+  uploads_data:
+    driver: local
+
+networks:
+  duka_net:
+    driver: bridge

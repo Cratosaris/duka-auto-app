@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block title %}{{ rep.numero_or }}{% endblock %}
+{% block page_title %}{{ rep.numero_or }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>🔧 {{ rep.numero_or }}</h1>
+    <div class="page-header-sub">
+      <span class="status-badge status-{{ rep.statut }}">{{ rep.statut }}</span>
+      &nbsp;{{ rep.vehicule.immatriculation }} · {{ rep.vehicule.marque }} {{ rep.vehicule.modele }}
+      · {{ rep.vehicule.client.nom_complet }}
+    </div>
+  </div>
+  <a href="{{ url_for('reparations.index') }}" class="btn btn-outline-secondary">← Retour</a>
+</div>
+
+<div class="row g-4">
+  <!-- Colonne gauche -->
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header">🚗 Véhicule & Client</div>
+      <div class="card-body">
+        <p><strong>Immatriculation :</strong> <code>{{ rep.vehicule.immatriculation }}</code></p>
+        <p><strong>Véhicule :</strong> {{ rep.vehicule.marque }} {{ rep.vehicule.modele }} {{ rep.vehicule.annee or '' }}</p>
+        <p><strong>Client :</strong>
+          <a href="{{ url_for('clients.detail', cid=rep.vehicule.client_id) }}">
+            {{ rep.vehicule.client.nom_complet }}
+          </a>
+        </p>
+        <p><strong>Téléphone :</strong> {{ rep.vehicule.client.telephone or '-' }}</p>
+        <p><strong>Km entrée :</strong> {{ rep.kilometrage_entree or '-' }}</p>
+        <p><strong>Reçu le :</strong> {{ rep.date_reception.strftime('%d/%m/%Y %H:%M') }}</p>
+        <hr>
+        <p><strong>Panne déclarée :</strong></p>
+        <p style="color:#c9d1d9;">{{ rep.description_panne or '-' }}</p>
+        {% if rep.diagnostic %}
+        <hr>
+        <p><strong>Diagnostic :</strong></p>
+        <p style="color:#c9d1d9;">{{ rep.diagnostic }}</p>
+        {% endif %}
+        <p><strong>Technicien :</strong> {{ rep.technicien.nom_complet if rep.technicien else 'Non assigné' }}</p>
+        <p><strong>TVA :</strong> {{ rep.taux_tva }}%</p>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="card">
+      <div class="card-header">🔄 Avancement</div>
+      <div class="card-body d-flex flex-column gap-2">
+        {% if rep.statut == 'reception' %}
+          <form method="POST" action="{{ url_for('reparations.changer_statut', rid=rep.id) }}">
+            <input type="hidden" name="statut" value="diagnostic">
+            <div class="mb-2">
+              <label class="form-label">Résultat du diagnostic</label>
+              <textarea name="diagnostic" class="form-control form-control-sm" rows="3"
+                        placeholder="Décrire les problèmes identifiés..."></textarea>
+            </div>
+            <button class="btn btn-primary w-100">🔍 Valider Diagnostic</button>
+          </form>
+
+        {% elif rep.statut == 'diagnostic' %}
+          <form method="POST" action="{{ url_for('reparations.changer_statut', rid=rep.id) }}">
+            <input type="hidden" name="statut" value="en_cours">
+            <div class="mb-2">
+              <label class="form-label">Main d'œuvre (FBu)</label>
+              <input type="number" name="montant_mo" class="form-control form-control-sm"
+                     value="0" min="0" step="1000">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">TVA</label>
+              <select name="taux_tva" class="form-select form-select-sm">
+                <option value="18" {{ 'selected' if rep.taux_tva == 18 }}>18% Standard</option>
+                <option value="10" {{ 'selected' if rep.taux_tva == 10 }}>10% Réduit</option>
+                <option value="0"  {{ 'selected' if rep.taux_tva == 0  }}>0% Exonéré</option>
+              </select>
+            </div>
+            <button class="btn btn-warning w-100">🔧 Démarrer les Travaux</button>
+          </form>
+
+        {% elif rep.statut == 'en_cours' %}
+          <form method="POST" action="{{ url_for('reparations.changer_statut', rid=rep.id) }}">
+            <input type="hidden" name="statut" value="termine">
+            <button class="btn btn-success w-100">✅ Marquer Terminé</button>
+          </form>
+
+        {% elif rep.statut == 'termine' and not rep.facture %}
+          <div style="background:var(--dark3);border-radius:8px;padding:12px;margin-bottom:8px;">
+            <div style="font-size:0.78rem;color:var(--text-muted);">Total à facturer</div>
+            <div style="font-size:1.2rem;font-weight:700;color:#f0f6fc;">{{ rep.montant_total | fbu }}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">dont TVA {{ rep.taux_tva }}% : {{ rep.montant_tva | fbu }}</div>
+          </div>
+          <form method="POST" action="{{ url_for('reparations.facturer', rid=rep.id) }}">
+            <button class="btn btn-primary w-100">🧾 Générer la Facture</button>
+          </form>
+
+        {% elif rep.facture %}
+          <div style="background:var(--dark3);border-radius:8px;padding:12px;margin-bottom:8px;">
+            <div style="font-size:0.78rem;color:var(--text-muted);">Facture</div>
+            <div style="font-weight:700;color:#f0f6fc;">{{ rep.facture.numero_facture }}</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#56d364;">{{ rep.facture.montant_ttc | fbu }}</div>
+            <div style="margin-top:4px;">
+              <span class="status-badge status-{{ rep.facture.statut_paiement }}">
+                {{ rep.facture.statut_paiement }}
+              </span>
+            </div>
+          </div>
+          {% if rep.facture.statut_paiement == 'impayee' %}
+          <form method="POST" action="{{ url_for('reparations.payer_facture', fid=rep.facture.id) }}">
+            <div class="mb-2">
+              <label class="form-label">Mode de paiement</label>
+              <select name="mode_paiement" class="form-select form-select-sm">
+                <option value="especes">💵 Espèces</option>
+                <option value="mobile_money">📱 Mobile Money (Lumicash/EcoCash)</option>
+                <option value="virement">🏦 Virement bancaire</option>
+                <option value="cheque">📝 Chèque</option>
+              </select>
+            </div>
+            <button class="btn btn-success w-100">💰 Enregistrer Paiement</button>
+          </form>
+          {% else %}
+          <div style="color:#56d364;text-align:center;padding:8px;">
+            ✅ Payé le {{ rep.facture.date_paiement.strftime('%d/%m/%Y') if rep.facture.date_paiement else '' }}
+            via {{ rep.facture.mode_paiement or '' }}
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% if rep.statut not in ['facture','annule'] %}
+        <form method="POST" action="{{ url_for('reparations.changer_statut', rid=rep.id) }}"
+              onsubmit="return confirm('Annuler cette réparation ?')">
+          <input type="hidden" name="statut" value="annule">
+          <button class="btn btn-outline-danger w-100 btn-sm mt-2">🚫 Annuler la réparation</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Colonne droite — Pièces -->
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>🔩 Pièces & Main d'œuvre</span>
+        <span style="color:var(--text-muted);font-size:0.78rem;">
+          MO : {{ rep.montant_mo | fbu }} | Pièces : {{ rep.montant_pieces | fbu }}
+        </span>
+      </div>
+      <div class="card-body">
+        {% if rep.statut in ['diagnostic','en_cours','reception'] %}
+        <form method="POST" action="{{ url_for('reparations.ajouter_piece', rid=rep.id) }}"
+              class="mb-3" id="formPiece">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Pièce du stock</label>
+              <select name="piece_id" class="form-select form-select-sm" id="pieceSelect">
+                <option value="">-- Pièce libre / service --</option>
+                {% for p in pieces_dispo %}
+                <option value="{{ p.id }}"
+                        data-prix="{{ p.prix_vente }}"
+                        data-nom="{{ p.nom }}"
+                        data-stock="{{ p.quantite_stock }}">
+                  {{ p.nom }} ({{ p.quantite_stock }} {{ p.unite }})
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Désignation</label>
+              <input type="text" name="designation" class="form-control form-control-sm"
+                     id="designInput" placeholder="Ou description libre">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Quantité</label>
+              <input type="number" name="quantite" class="form-control form-control-sm"
+                     id="qteInput" value="1" min="0.5" step="0.5">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Prix unitaire</label>
+              <input type="number" name="prix_unitaire" class="form-control form-control-sm"
+                     id="prixInput" placeholder="FBu" min="0" step="100">
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm w-100">+</button>
+            </div>
+          </div>
+        </form>
+        {% endif %}
+
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Désignation</th>
+              <th style="text-align:center;">Qté</th>
+              <th style="text-align:right;">P.U.</th>
+              <th style="text-align:right;">Sous-total</th>
+              {% if rep.statut in ['diagnostic','en_cours','reception'] %}<th></th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in rep.lignes_pieces %}
+            <tr>
+              <td style="color:#e6edf3;">{{ l.designation }}</td>
+              <td style="text-align:center;color:#e6edf3;">{{ l.quantite }}</td>
+              <td style="text-align:right;color:#e6edf3;">{{ l.prix_unitaire | fbu }}</td>
+              <td style="text-align:right;font-weight:600;color:#f0f6fc;">{{ l.sous_total | fbu }}</td>
+              {% if rep.statut in ['diagnostic','en_cours','reception'] %}
+              <td>
+                <form method="POST"
+                      action="{{ url_for('reparations.supprimer_ligne', lid=l.id) }}"
+                      onsubmit="return confirm('Supprimer cette ligne ?')">
+                  <button class="btn btn-sm btn-outline-danger">✕</button>
+                </form>
+              </td>
+              {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">
+                Aucune pièce ajoutée
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--dark3);">
+              <td colspan="3" style="text-align:right;color:var(--text-muted);">Main d'œuvre</td>
+              <td style="text-align:right;color:#e6edf3;">{{ rep.montant_mo | fbu }}</td>
+              {% if rep.statut in ['diagnostic','en_cours','reception'] %}<td></td>{% endif %}
+            </tr>
+            <tr style="background:var(--dark3);">
+              <td colspan="3" style="text-align:right;color:var(--text-muted);">Total HT</td>
+              <td style="text-align:right;color:#e6edf3;">{{ rep.montant_ht | fbu }}</td>
+              {% if rep.statut in ['diagnostic','en_cours','reception'] %}<td></td>{% endif %}
+            </tr>
+            <tr style="background:var(--dark3);">
+              <td colspan="3" style="text-align:right;color:var(--text-muted);">TVA {{ rep.taux_tva }}%</td>
+              <td style="text-align:right;color:#e6edf3;">{{ rep.montant_tva | fbu }}</td>
+              {% if rep.statut in ['diagnostic','en_cours','reception'] %}<td></td>{% endif %}
+            </tr>
+            <tr style="background:var(--dark2);">
+              <td colspan="3" style="text-align:right;font-weight:700;color:#f0f6fc;font-size:1rem;">
+                TOTAL TTC
+              </td>
+              <td style="text-align:right;font-weight:700;color:#56d364;font-size:1.1rem;">
+                {{ rep.montant_total | fbu }}
+              </td>
+              {% if rep.statut in ['diagnostic','en_cours','reception'] %}<td></td>{% endif %}
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('pieceSelect').addEventListener('change', function() {
+  const opt = this.options[this.selectedIndex];
+  const prix  = opt.getAttribute('data-prix');
+  const nom   = opt.getAttribute('data-nom');
+  const stock = opt.getAttribute('data-stock');
+  if (prix) document.getElementById('prixInput').value = prix;
+  if (nom)  document.getElementById('designInput').value = nom;
+  if (stock && parseInt(stock) < 1) {
+    alert('⚠️ Stock insuffisant pour cette pièce !');
+  }
+});
+</script>
+{% endblock %}

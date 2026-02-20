@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Devis{% endblock %}
+{% block page_title %}Devis{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>📄 Devis</h1>
+  <a href="{{ url_for('devis_bp.new_devis') }}" class="btn btn-primary">+ Nouveau devis</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead><tr><th>N° Devis</th><th>Véhicule</th><th>Client</th><th>Montant TTC</th><th>TVA</th><th>Statut</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for d in devis_list %}
+        <tr>
+          <td><code>{{ d.numero_devis }}</code></td>
+          <td>{{ d.vehicule.immatriculation }} {{ d.vehicule.marque }}</td>
+          <td>{{ d.vehicule.client.nom_complet }}</td>
+          <td style="font-weight:600;">{{ d.montant_ttc | fbu }}</td>
+          <td>{{ d.taux_tva }}%</td>
+          <td><span class="status-badge status-{{ d.statut }}">{{ d.statut }}</span></td>
+          <td style="color:var(--text-muted);">{{ d.date_devis.strftime('%d/%m/%Y') }}</td>
+          <td>
+            <a href="{{ url_for('devis_bp.detail', did=d.id) }}" class="btn btn-sm btn-outline-secondary">Voir</a>
+            <a href="{{ url_for('devis_bp.telecharger_pdf', did=d.id) }}" class="btn btn-sm btn-outline-secondary" title="Télécharger PDF">📥</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center" style="color:var(--text-muted);padding:32px;">Aucun devis</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

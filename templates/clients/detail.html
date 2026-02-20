@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}{{ client.nom_complet }}{% endblock %}
+{% block page_title %}Fiche Client{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ client.nom_complet }}</h1>
+    <div class="page-header-sub">
+      <span class="status-badge {{ 'status-info' if client.type_client == 'entreprise' else 'status-brouillon' }}">{{ client.type_client }}</span>
+      &nbsp;{{ client.nb_vehicules }} véhicule(s) · {{ client.nb_reparations }} réparation(s)
+    </div>
+  </div>
+  <div>
+    <a href="{{ url_for('clients.edit_client', cid=client.id) }}" class="btn btn-outline-secondary me-2">✏️ Modifier</a>
+    <a href="{{ url_for('reparations.new_reparation') }}?client_id={{ client.id }}" class="btn btn-primary">+ Nouvelle réception</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header">📋 Informations</div>
+      <div class="card-body">
+        {% if client.type_client == 'entreprise' and client.nom_entreprise %}
+        <p><strong>Entreprise :</strong> {{ client.nom_entreprise }}</p>
+        {% if client.nif_entreprise %}<p><strong>NIF :</strong> {{ client.nif_entreprise }}</p>{% endif %}
+        <hr>
+        {% endif %}
+        <p><strong>Nom :</strong> {{ client.nom_complet }}</p>
+        {% if client.telephone %}<p><strong>Tél :</strong> {{ client.telephone }}</p>{% endif %}
+        {% if client.telephone2 %}<p><strong>Tél 2 :</strong> {{ client.telephone2 }}</p>{% endif %}
+        {% if client.email %}<p><strong>Email :</strong> {{ client.email }}</p>{% endif %}
+        {% if client.adresse %}<p><strong>Adresse :</strong> {{ client.adresse }}{% if client.quartier %}, {{ client.quartier }}{% endif %}</p>{% endif %}
+        <p><strong>Ville :</strong> {{ client.ville }}</p>
+        {% if client.notes %}<hr><p style="color:var(--text-muted);font-size:0.82rem;">{{ client.notes }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between">
+        <span>🚗 Véhicules</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>Immat.</th><th>Marque / Modèle</th><th>Année</th><th>Réparations</th></tr></thead>
+          <tbody>
+            {% for v in client.vehicules %}
+            <tr>
+              <td><code>{{ v.immatriculation }}</code></td>
+              <td>{{ v.marque }} {{ v.modele }}</td>
+              <td>{{ v.annee or '-' }}</td>
+              <td>{{ v.reparations.count() }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;">Aucun véhicule</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">🔧 Historique des réparations</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>N° OR</th><th>Véhicule</th><th>Statut</th><th>Total</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for v in client.vehicules %}
+              {% for r in v.reparations.order_by('created_at desc') %}
+              <tr style="cursor:pointer;" onclick="window.location='{{ url_for('reparations.detail', rid=r.id) }}'">
+                <td><code>{{ r.numero_or }}</code></td>
+                <td>{{ v.immatriculation }}</td>
+                <td><span class="status-badge status-{{ r.statut }}">{{ r.statut }}</span></td>
+                <td>{{ r.montant_total | fbu }}</td>
+                <td style="color:var(--text-muted);">{{ r.created_at.strftime('%d/%m/%Y') }}</td>
+              </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

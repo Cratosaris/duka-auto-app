@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Duka Auto{% endblock %} — {{ garage_cfg.nom_garage if garage_cfg else 'Duka Auto' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<div class="app-wrapper">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+      {% if garage_cfg and garage_cfg.logo_filename %}
+        <img src="{{ url_for('uploaded_logo', filename=garage_cfg.logo_filename) }}" alt="logo">
+      {% else %}
+        <div class="sidebar-brand-icon">🔧</div>
+      {% endif %}
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">{{ garage_cfg.nom_garage if garage_cfg else 'Duka Auto' }}</div>
+        <div class="sidebar-brand-sub">Gestion Garage</div>
+      </div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principal</div>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link {{ 'active' if request.endpoint == 'dashboard' }}">
+        <span class="icon">📊</span> Tableau de bord
+      </a>
+
+      <div class="sidebar-section">Opérations</div>
+      <a href="{{ url_for('reparations.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'reparations' }}">
+        <span class="icon">🔧</span> Réparations
+        {% if stats_sidebar.en_cours > 0 %}
+        <span class="sidebar-badge">{{ stats_sidebar.en_cours }}</span>
+        {% endif %}
+      </a>
+      <a href="{{ url_for('devis_bp.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'devis_bp' }}">
+        <span class="icon">📄</span> Devis
+      </a>
+
+      <div class="sidebar-section">Gestion</div>
+      <a href="{{ url_for('clients.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'clients' }}">
+        <span class="icon">👤</span> Clients
+      </a>
+      <a href="{{ url_for('stock.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'stock' }}">
+        <span class="icon">📦</span> Stock
+        {% if stats_sidebar.critiques > 0 %}
+        <span class="sidebar-badge">{{ stats_sidebar.critiques }}</span>
+        {% endif %}
+      </a>
+
+      <div class="sidebar-section">RH & Finance</div>
+      <a href="{{ url_for('rh.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'rh' }}">
+        <span class="icon">👥</span> Employés
+      </a>
+      <a href="{{ url_for('rh.pointage') }}" class="sidebar-link {{ 'active' if request.endpoint == 'rh.pointage' }}">
+        <span class="icon">⏱</span> Pointage
+      </a>
+      <a href="{{ url_for('comptabilite.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'comptabilite' }}">
+        <span class="icon">💰</span> Comptabilité
+      </a>
+
+      <div class="sidebar-section">Config</div>
+      {% if current_user.role == 'admin' %}
+      <a href="{{ url_for('users.index') }}" class="sidebar-link {{ 'active' if request.blueprint == 'users' }}">
+        <span class="icon">🔑</span> Utilisateurs
+      </a>
+      {% endif %}
+      <a href="{{ url_for('parametres') }}" class="sidebar-link {{ 'active' if request.endpoint == 'parametres' }}">
+        <span class="icon">⚙️</span> Paramètres
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('logout') }}" class="sidebar-link">
+        <span class="icon">🚪</span> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm d-md-none" onclick="document.getElementById('sidebar').classList.toggle('open')" style="color:var(--text-muted);background:none;border:none;">☰</button>
+        <span class="topbar-title">{% block page_title %}{% endblock %}</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="avatar">{{ current_user.username[0].upper() }}</div>
+          <span class="d-none d-md-inline">{{ current_user.username }}</span>
+          <span class="d-none d-md-inline" style="color:var(--dark4)">|</span>
+          <span class="d-none d-md-inline" style="color:var(--text-muted);font-size:0.75rem;">{{ current_user.role_label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+            <div class="alert alert-{{ cat }} alert-dismissible fade show" role="alert">
+              {{ msg }}
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+{% else %}
+{% block content_unauth %}{% endblock %}
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

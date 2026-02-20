@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  body { font-family: DejaVu Sans, sans-serif; font-size: 10pt; color: #1a1a1a; margin: 0; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 2px solid #e63946; padding-bottom: 14px; }
+  .garage-name { font-size: 18pt; font-weight: bold; color: #e63946; }
+  .garage-info { font-size: 8pt; color: #555; margin-top: 4px; }
+  .devis-title { text-align: right; }
+  .devis-title h2 { font-size: 16pt; font-weight: bold; margin: 0; color: #1a1a1a; }
+  .devis-title .num { font-size: 11pt; color: #e63946; font-weight: bold; }
+  .info-grid { display: flex; gap: 30px; margin-bottom: 20px; }
+  .info-box { flex: 1; background: #f8f8f8; border-radius: 6px; padding: 12px; border-left: 3px solid #e63946; }
+  .info-box h4 { font-size: 8pt; text-transform: uppercase; letter-spacing: .06em; color: #888; margin: 0 0 8px; }
+  .info-box p { font-size: 9pt; margin: 3px 0; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  thead th { background: #1a1a1a; color: #fff; padding: 8px 10px; font-size: 8.5pt; text-align: left; }
+  tbody td { padding: 7px 10px; font-size: 9pt; border-bottom: 1px solid #eee; }
+  tbody tr:nth-child(even) td { background: #fafafa; }
+  tfoot td { padding: 7px 10px; font-size: 9pt; }
+  .total-row td { background: #1a1a1a; color: #fff; font-weight: bold; font-size: 10pt; }
+  .footer { margin-top: 24px; font-size: 8pt; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }
+  .status-pill { display: inline-block; background: #e63946; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 8pt; font-weight: bold; }
+  .validity { font-size: 8.5pt; color: #555; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="garage-name">{{ cfg.nom_garage if cfg else 'Duka Auto' }}</div>
+    <div class="garage-info">
+      {% if cfg and cfg.slogan %}<div>{{ cfg.slogan }}</div>{% endif %}
+      {% if cfg and cfg.adresse %}<div>{{ cfg.adresse }}</div>{% endif %}
+      {% if cfg and cfg.telephone %}<div>Tél : {{ cfg.telephone }}</div>{% endif %}
+      {% if cfg and cfg.numero_nif %}<div>NIF : {{ cfg.numero_nif }}</div>{% endif %}
+    </div>
+  </div>
+  <div class="devis-title">
+    <h2>DEVIS</h2>
+    <div class="num">{{ devis.numero_devis }}</div>
+    <div class="validity">Date : {{ devis.date_devis.strftime('%d/%m/%Y') }}</div>
+    {% if devis.date_validite %}
+    <div class="validity">Valable jusqu'au : {{ devis.date_validite.strftime('%d/%m/%Y') }}</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="info-grid">
+  <div class="info-box">
+    <h4>Client</h4>
+    <p><strong>{{ devis.vehicule.client.nom_complet }}</strong></p>
+    {% if devis.vehicule.client.telephone %}<p>Tél : {{ devis.vehicule.client.telephone }}</p>{% endif %}
+    {% if devis.vehicule.client.adresse %}<p>{{ devis.vehicule.client.adresse }}, {{ devis.vehicule.client.ville }}</p>{% endif %}
+  </div>
+  <div class="info-box">
+    <h4>Véhicule</h4>
+    <p><strong>{{ devis.vehicule.immatriculation }}</strong></p>
+    <p>{{ devis.vehicule.marque }} {{ devis.vehicule.modele }} {{ devis.vehicule.annee or '' }}</p>
+    {% if devis.vehicule.couleur %}<p>Couleur : {{ devis.vehicule.couleur }}</p>{% endif %}
+  </div>
+  <div class="info-box">
+    <h4>Technicien</h4>
+    <p>{{ devis.technicien.nom_complet if devis.technicien else 'Non assigné' }}</p>
+  </div>
+</div>
+
+{% if devis.description_panne %}
+<p style="font-size:9pt;margin-bottom:14px;"><strong>Travaux demandés :</strong> {{ devis.description_panne }}</p>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:50%;">Désignation</th>
+      <th style="width:12%;text-align:center;">Qté</th>
+      <th style="width:18%;text-align:right;">Prix unitaire</th>
+      <th style="width:20%;text-align:right;">Sous-total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for l in devis.lignes %}
+    <tr>
+      <td>{{ l.designation }}</td>
+      <td style="text-align:center;">{{ l.quantite }}</td>
+      <td style="text-align:right;">{{ "{:,.0f}".format(l.prix_unitaire).replace(",", " ") }} FBu</td>
+      <td style="text-align:right;">{{ "{:,.0f}".format(l.sous_total).replace(",", " ") }} FBu</td>
+    </tr>
+    {% endfor %}
+    {% if float(devis.montant_mo) > 0 %}
+    <tr>
+      <td><em>Main d'œuvre</em></td>
+      <td style="text-align:center;">1</td>
+      <td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_mo).replace(",", " ") }} FBu</td>
+      <td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_mo).replace(",", " ") }} FBu</td>
+    </tr>
+    {% endif %}
+  </tbody>
+  <tfoot>
+    <tr><td colspan="3" style="text-align:right;color:#555;">Total HT</td><td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_ht).replace(",", " ") }} FBu</td></tr>
+    <tr><td colspan="3" style="text-align:right;color:#555;">TVA {{ devis.taux_tva }}%</td><td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_tva).replace(",", " ") }} FBu</td></tr>
+    <tr class="total-row"><td colspan="3" style="text-align:right;">TOTAL TTC</td><td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_ttc).replace(",", " ") }} FBu</td></tr>
+  </tfoot>
+</table>
+
+{% if devis.notes %}
+<p style="font-size:8.5pt;color:#555;margin-top:10px;"><strong>Notes :</strong> {{ devis.notes }}</p>
+{% endif %}
+
+<div class="footer">
+  {{ cfg.nom_garage if cfg else 'Duka Auto' }} — Devis généré le {{ devis.date_devis.strftime('%d/%m/%Y') }}
+  {% if cfg and cfg.numero_nif %} — NIF : {{ cfg.numero_nif }}{% endif %}
+</div>
+</body>
+</html>

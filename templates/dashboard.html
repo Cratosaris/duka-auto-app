@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="stat-card yellow">
+      <div class="stat-icon">🔧</div>
+      <div class="stat-value">{{ stats.reparations_en_cours }}</div>
+      <div class="stat-label">Réparations en cours</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card red">
+      <div class="stat-icon">📦</div>
+      <div class="stat-value">{{ stats.pieces_critiques }}</div>
+      <div class="stat-label">Stocks critiques</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card green">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value" style="font-size:1.1rem;">{{ stats.recettes_jour | fbu }}</div>
+      <div class="stat-label">Recettes du jour</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card blue">
+      <div class="stat-icon">📉</div>
+      <div class="stat-value" style="font-size:1.1rem;">{{ stats.depenses_jour | fbu }}</div>
+      <div class="stat-label">Dépenses du jour</div>
+    </div>
+  </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row g-2 mb-4">
+  <div class="col-12"><h6 style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:.06em;">Actions rapides</h6></div>
+  <div class="col-6 col-md-3 col-xl-2">
+    <a href="{{ url_for('reparations.new_reparation') }}" class="quick-action">
+      <span class="qa-icon">🚗</span><span class="qa-label">Nouvelle réception</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3 col-xl-2">
+    <a href="{{ url_for('devis_bp.new_devis') }}" class="quick-action">
+      <span class="qa-icon">📄</span><span class="qa-label">Créer un devis</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3 col-xl-2">
+    <a href="{{ url_for('clients.new_client') }}" class="quick-action">
+      <span class="qa-icon">👤</span><span class="qa-label">Nouveau client</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3 col-xl-2">
+    <a href="{{ url_for('rh.pointage') }}" class="quick-action">
+      <span class="qa-icon">⏱</span><span class="qa-label">Pointage</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3 col-xl-2">
+    <a href="{{ url_for('comptabilite.new_ecriture') }}" class="quick-action">
+      <span class="qa-icon">💵</span><span class="qa-label">Saisir dépense</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3 col-xl-2">
+    <a href="{{ url_for('stock.new_piece') }}" class="quick-action">
+      <span class="qa-icon">📦</span><span class="qa-label">Ajouter pièce</span>
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>🔧 Réparations récentes</span>
+        <a href="{{ url_for('reparations.index') }}" class="btn btn-sm btn-outline-secondary">Voir tout</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>N° OR</th><th>Véhicule</th><th>Client</th><th>Statut</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for r in reparations_recentes %}
+            <tr style="cursor:pointer;" onclick="window.location='{{ url_for('reparations.detail', rid=r.id) }}'">
+              <td><code>{{ r.numero_or }}</code></td>
+              <td>{{ r.vehicule.immatriculation }} <span style="color:var(--text-muted)">{{ r.vehicule.marque }}</span></td>
+              <td>{{ r.vehicule.client.nom_complet }}</td>
+              <td><span class="status-badge status-{{ r.statut }}">{{ r.statut }}</span></td>
+              <td style="color:var(--text-muted)">{{ r.created_at.strftime('%d/%m/%Y') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center" style="color:var(--text-muted);padding:24px;">Aucune réparation</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>⚠️ Stocks critiques</span>
+        <a href="{{ url_for('stock.index') }}" class="btn btn-sm btn-outline-secondary">Stock</a>
+      </div>
+      <div class="card-body p-0">
+        {% if pieces_critiques %}
+        <table class="table mb-0">
+          <thead><tr><th>Pièce</th><th>Qté</th></tr></thead>
+          <tbody>
+            {% for p in pieces_critiques %}
+            <tr>
+              <td style="font-size:0.82rem;">{{ p.nom[:30] }}</td>
+              <td><span class="status-badge status-annule">{{ p.quantite_stock }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div style="padding:24px;text-align:center;color:var(--success);">✅ Tous les stocks sont OK</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

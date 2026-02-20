@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Clients{% endblock %}
+{% block page_title %}Clients{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>👤 Clients</h1>
+    <div class="page-header-sub">{{ clients|length }} client(s) trouvé(s)</div>
+  </div>
+  <a href="{{ url_for('clients.new_client') }}" class="btn btn-primary">+ Nouveau client</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body" style="padding:12px;">
+    <form method="GET" class="d-flex gap-2">
+      <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher par nom, téléphone...">
+      <button class="btn btn-primary">🔍</button>
+      {% if q %}<a href="{{ url_for('clients.index') }}" class="btn btn-outline-secondary">✕</a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead><tr><th>Client</th><th>Type</th><th>Téléphone</th><th>Ville</th><th>Véhicules</th><th>Réparations</th><th></th></tr></thead>
+      <tbody>
+        {% for c in clients %}
+        <tr>
+          <td>
+            <div style="font-weight:600;">{{ c.nom_complet }}</div>
+            {% if c.email %}<div style="font-size:0.78rem;color:var(--text-muted);">{{ c.email }}</div>{% endif %}
+          </td>
+          <td><span class="status-badge {{ 'status-info' if c.type_client == 'entreprise' else 'status-brouillon' }}">{{ c.type_client }}</span></td>
+          <td>{{ c.telephone or '-' }}</td>
+          <td>{{ c.ville }}</td>
+          <td style="text-align:center;">{{ c.nb_vehicules }}</td>
+          <td style="text-align:center;">{{ c.nb_reparations }}</td>
+          <td><a href="{{ url_for('clients.detail', cid=c.id) }}" class="btn btn-sm btn-outline-secondary">Voir</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center" style="color:var(--text-muted);padding:32px;">Aucun client</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

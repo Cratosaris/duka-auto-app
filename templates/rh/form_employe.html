@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Modifier' if employe else 'Nouvel' }} Employé{% endblock %}
+{% block content %}
+<h2 class="mb-4">{{ 'Modifier' if employe else 'Nouvel' }} Employé</h2>
+<div class="card shadow-sm col-md-8">
+  <div class="card-body">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nom *</label>
+          <input type="text" name="nom" class="form-control" value="{{ employe.nom if employe else '' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Prénom *</label>
+          <input type="text" name="prenom" class="form-control" value="{{ employe.prenom if employe else '' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Poste</label>
+          <input type="text" name="poste" class="form-control" value="{{ employe.poste if employe else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Téléphone</label>
+          <input type="text" name="telephone" class="form-control" value="{{ employe.telephone if employe else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Salaire de base (FBu)</label>
+          <input type="number" name="salaire_base" class="form-control" value="{{ employe.salaire_base if employe else 0 }}" min="0">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Taux de commission (%)</label>
+          <input type="number" name="taux_commission" class="form-control" value="{{ employe.taux_commission if employe else 0 }}" min="0" max="100" step="0.5">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-dark">💾 Enregistrer</button>
+          <a href="{{ url_for('rh.index') }}" class="btn btn-outline-secondary ms-2">Annuler</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

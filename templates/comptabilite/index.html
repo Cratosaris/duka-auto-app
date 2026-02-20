@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Comptabilité{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>📊 Journal Comptable</h2>
+  <a href="{{ url_for('comptabilite.new_ecriture') }}" class="btn btn-dark">+ Nouvelle écriture</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card bg-success text-white shadow-sm text-center p-3">
+      <div class="fs-4 fw-bold">{{ recettes_jour | fbu }}</div><div>Recettes du jour</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-danger text-white shadow-sm text-center p-3">
+      <div class="fs-4 fw-bold">{{ depenses_jour | fbu }}</div><div>Dépenses du jour</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-dark text-white shadow-sm text-center p-3">
+      <div class="fs-4 fw-bold">{{ (recettes_jour - depenses_jour) | fbu }}</div><div>Solde du jour</div>
+    </div>
+  </div>
+</div>
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr><th>Date</th><th>Type</th><th>Catégorie</th><th>Description</th><th>Montant</th><th>Référence</th></tr>
+      </thead>
+      <tbody>
+        {% for e in ecritures %}
+        <tr>
+          <td>{{ e.date_ecriture.strftime('%d/%m/%Y') }}</td>
+          <td><span class="badge bg-{{ 'success' if e.type_ecriture == 'recette' else 'danger' }}">{{ e.type_ecriture }}</span></td>
+          <td>{{ e.categorie or '-' }}</td>
+          <td>{{ e.description }}</td>
+          <td class="fw-bold">{{ e.montant | fbu }}</td>
+          <td>{{ e.reference or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-3">Aucune écriture</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

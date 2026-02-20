@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Modifier' if piece else 'Nouvelle' }} Pièce{% endblock %}
+{% block page_title %}{{ 'Modifier' if piece else 'Nouvelle' }} Pièce{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>📦 {{ 'Modifier' if piece else 'Nouvelle' }} Pièce</h1>
+  <a href="{{ url_for('stock.index') }}" class="btn btn-outline-secondary">← Retour</a>
+</div>
+<div class="card" style="max-width:750px;">
+  <div class="card-body">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Référence *</label>
+          <input type="text" name="reference" class="form-control"
+                 value="{{ piece.reference if piece else '' }}"
+                 {{ 'readonly' if piece }} required>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label">Nom de la pièce *</label>
+          <input type="text" name="nom" class="form-control"
+                 value="{{ piece.nom if piece else '' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Catégorie</label>
+          <select name="categorie" class="form-select">
+            {% for cat in ['Moteur','Freinage','Suspension','Transmission','Électrique','Carrosserie','Filtres','Huiles & Fluides','Échappement','Climatisation','Autre'] %}
+            <option {{ 'selected' if piece and piece.categorie == cat }}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Fournisseur</label>
+          <select name="fournisseur_id" class="form-select">
+            <option value="">-- Aucun --</option>
+            {% for f in fournisseurs %}
+            <option value="{{ f.id }}"
+              {{ 'selected' if piece and piece.fournisseur_id == f.id }}>
+              {{ f.nom }} ({{ f.type_fourn }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Prix d'achat (FBu)</label>
+          <input type="number" name="prix_achat" class="form-control"
+                 value="{{ piece.prix_achat if piece else 0 }}" min="0" step="100">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Prix de vente (FBu)</label>
+          <input type="number" name="prix_vente" class="form-control"
+                 value="{{ piece.prix_vente if piece else 0 }}" min="0" step="100">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Unité</label>
+          <select name="unite" class="form-select">
+            {% for u in ['pièce','litre','kg','mètre','jeu','lot'] %}
+            <option {{ 'selected' if piece and piece.unite == u }}>{{ u }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if not piece %}
+        <div class="col-md-4">
+          <label class="form-label">Stock initial</label>
+          <input type="number" name="quantite_stock" class="form-control" value="0" min="0">
+        </div>
+        {% endif %}
+        <div class="col-md-4">
+          <label class="form-label">Seuil d'alerte critique</label>
+          <input type="number" name="seuil_critique" class="form-control"
+                 value="{{ piece.seuil_critique if piece else 5 }}" min="0">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="2">{{ piece.description if piece else '' }}</textarea>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+          <a href="{{ url_for('stock.index') }}" class="btn btn-outline-secondary">Annuler</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

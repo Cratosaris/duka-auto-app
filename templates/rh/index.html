@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}RH — Employés{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>👥 Employés</h2>
+  <div>
+    <a href="{{ url_for('rh.pointage') }}" class="btn btn-outline-secondary me-2">⏱ Pointage</a>
+    <a href="{{ url_for('rh.new_employe') }}" class="btn btn-dark">+ Ajouter</a>
+  </div>
+</div>
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr><th>Nom</th><th>Poste</th><th>Téléphone</th><th>Salaire base</th><th>Commission</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for e in employes %}
+        <tr>
+          <td>{{ e.nom_complet }}</td>
+          <td>{{ e.poste or '-' }}</td>
+          <td>{{ e.telephone or '-' }}</td>
+          <td>{{ e.salaire_base | fbu }}</td>
+          <td>{{ e.taux_commission }}%</td>
+          <td><a href="{{ url_for('rh.edit_employe', eid=e.id) }}" class="btn btn-sm btn-outline-secondary">Modifier</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-3">Aucun employé</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

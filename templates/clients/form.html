@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Modifier' if client else 'Nouveau' }} Client{% endblock %}
+{% block page_title %}{{ 'Modifier' if client else 'Nouveau' }} Client{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ '✏️ Modifier' if client else '👤 Nouveau' }} Client</h1>
+</div>
+<div class="card" style="max-width:700px;">
+  <div class="card-body">
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Type de client</label>
+        <select name="type_client" class="form-select" id="typeClient" onchange="toggleEntreprise()">
+          <option value="particulier" {{ 'selected' if not client or client.type_client == 'particulier' }}>Particulier</option>
+          <option value="entreprise" {{ 'selected' if client and client.type_client == 'entreprise' }}>Entreprise</option>
+        </select>
+      </div>
+      <div id="entrepriseFields" style="display:{{ 'block' if client and client.type_client == 'entreprise' else 'none' }}">
+        <div class="row g-3 mb-3">
+          <div class="col-md-8"><label class="form-label">Nom de l'entreprise</label>
+            <input type="text" name="nom_entreprise" class="form-control" value="{{ client.nom_entreprise if client else '' }}"></div>
+          <div class="col-md-4"><label class="form-label">NIF Entreprise</label>
+            <input type="text" name="nif_entreprise" class="form-control" value="{{ client.nif_entreprise if client else '' }}"></div>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Nom *</label>
+          <input type="text" name="nom" class="form-control" value="{{ client.nom if client else '' }}" required></div>
+        <div class="col-md-6"><label class="form-label">Prénom</label>
+          <input type="text" name="prenom" class="form-control" value="{{ client.prenom if client else '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Téléphone principal</label>
+          <input type="text" name="telephone" class="form-control" value="{{ client.telephone if client else '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Téléphone 2</label>
+          <input type="text" name="telephone2" class="form-control" value="{{ client.telephone2 if client else '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ client.email if client else '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Quartier</label>
+          <input type="text" name="quartier" class="form-control" value="{{ client.quartier if client else '' }}"></div>
+        <div class="col-md-8"><label class="form-label">Adresse</label>
+          <input type="text" name="adresse" class="form-control" value="{{ client.adresse if client else '' }}"></div>
+        <div class="col-md-4"><label class="form-label">Ville</label>
+          <select name="ville" class="form-select">
+            {% for v in ['Bujumbura','Gitega','Ngozi','Rumonge','Bururi','Kayanza','Muyinga','Cibitoke'] %}
+            <option {{ 'selected' if client and client.ville == v else '' }}>{{ v }}</option>
+            {% endfor %}
+          </select></div>
+        <div class="col-12"><label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="2">{{ client.notes if client else '' }}</textarea></div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+          <a href="{{ url_for('clients.index') }}" class="btn btn-outline-secondary ms-2">Annuler</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function toggleEntreprise() {
+  const t = document.getElementById('typeClient').value;
+  document.getElementById('entrepriseFields').style.display = t === 'entreprise' ? 'block' : 'none';
+}
+</script>
+{% endblock %}
