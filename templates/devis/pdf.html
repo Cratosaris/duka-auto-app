@@ -3,114 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  @page { size: A4; margin: 20mm 18mm; }
-  body { font-family: DejaVu Sans, sans-serif; font-size: 10pt; color: #1a1a1a; margin: 0; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 2px solid #e63946; padding-bottom: 14px; }
-  .garage-name { font-size: 18pt; font-weight: bold; color: #e63946; }
-  .garage-info { font-size: 8pt; color: #555; margin-top: 4px; }
-  .devis-title { text-align: right; }
-  .devis-title h2 { font-size: 16pt; font-weight: bold; margin: 0; color: #1a1a1a; }
-  .devis-title .num { font-size: 11pt; color: #e63946; font-weight: bold; }
-  .info-grid { display: flex; gap: 30px; margin-bottom: 20px; }
-  .info-box { flex: 1; background: #f8f8f8; border-radius: 6px; padding: 12px; border-left: 3px solid #e63946; }
-  .info-box h4 { font-size: 8pt; text-transform: uppercase; letter-spacing: .06em; color: #888; margin: 0 0 8px; }
-  .info-box p { font-size: 9pt; margin: 3px 0; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-  thead th { background: #1a1a1a; color: #fff; padding: 8px 10px; font-size: 8.5pt; text-align: left; }
-  tbody td { padding: 7px 10px; font-size: 9pt; border-bottom: 1px solid #eee; }
+  @page { size: A4; margin: 15mm 15mm 20mm 15mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 9.5pt; color: #1a1a2e; background: #fff; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 3px solid #e63946; margin-bottom: 16px; }
+  .garage-left { display: flex; align-items: flex-start; gap: 14px; }
+  .garage-logo { width: 70px; height: 70px; object-fit: contain; border-radius: 8px; border: 1px solid #eee; }
+  .garage-logo-placeholder { width: 70px; height: 70px; background: #e63946; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28pt; color: white; font-weight: bold; }
+  .garage-name { font-size: 16pt; font-weight: bold; color: #e63946; margin-bottom: 3px; }
+  .garage-slogan { font-size: 8pt; color: #666; margin-bottom: 6px; font-style: italic; }
+  .garage-detail { font-size: 8pt; color: #444; line-height: 1.7; }
+  .devis-title-box { text-align: right; min-width: 160px; }
+  .devis-label { font-size: 20pt; font-weight: bold; color: #1a1a2e; letter-spacing: 2px; }
+  .devis-num { font-size: 11pt; color: #e63946; font-weight: bold; margin-top: 4px; }
+  .devis-meta { font-size: 7.5pt; color: #666; margin-top: 6px; line-height: 1.8; }
+  .devis-statut { display: inline-block; background: #e63946; color: white; padding: 2px 10px; border-radius: 10px; font-size: 7.5pt; font-weight: bold; margin-top: 4px; }
+  .info-grid { display: flex; gap: 12px; margin-bottom: 16px; }
+  .info-box { flex: 1; background: #f8f9fa; border-radius: 6px; padding: 10px 12px; border-left: 3px solid #e63946; }
+  .info-box-title { font-size: 7pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #e63946; margin-bottom: 6px; }
+  .info-box p { font-size: 8.5pt; color: #222; margin-bottom: 3px; line-height: 1.5; }
+  .travaux-box { background: #fff8f8; border: 1px solid #f0c0c0; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; }
+  .travaux-title { font-size: 7.5pt; font-weight: bold; text-transform: uppercase; letter-spacing: .06em; color: #e63946; margin-bottom: 5px; }
+  .travaux-text { font-size: 9pt; color: #333; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  thead th { background: #1a1a2e; color: #fff; padding: 7px 10px; font-size: 8pt; text-align: left; font-weight: bold; }
+  thead th.right { text-align: right; }
+  thead th.center { text-align: center; }
+  tbody td { padding: 7px 10px; font-size: 8.5pt; border-bottom: 1px solid #eee; color: #222; vertical-align: middle; }
   tbody tr:nth-child(even) td { background: #fafafa; }
-  tfoot td { padding: 7px 10px; font-size: 9pt; }
-  .total-row td { background: #1a1a1a; color: #fff; font-weight: bold; font-size: 10pt; }
-  .footer { margin-top: 24px; font-size: 8pt; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }
-  .status-pill { display: inline-block; background: #e63946; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 8pt; font-weight: bold; }
-  .validity { font-size: 8.5pt; color: #555; margin-top: 6px; }
+  .td-right { text-align: right; }
+  .td-center { text-align: center; }
+  .type-badge { font-size: 7pt; padding: 1px 6px; border-radius: 8px; font-weight: bold; }
+  .type-stock { background: #d1fae5; color: #065f46; }
+  .type-externe { background: #fef3c7; color: #92400e; }
+  .type-service { background: #dbeafe; color: #1e40af; }
+  .totaux-table { width: 260px; margin-left: auto; margin-top: 8px; border-collapse: collapse; }
+  .totaux-table td { padding: 5px 10px; font-size: 8.5pt; border-bottom: 1px solid #eee; }
+  .totaux-table .label { color: #555; text-align: right; }
+  .totaux-table .val { text-align: right; font-weight: 600; color: #222; min-width: 110px; }
+  .total-ttc td { background: #1a1a2e !important; color: #fff !important; font-size: 10pt; font-weight: bold; padding: 8px 10px; }
+  .footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 7.5pt; color: #888; text-align: center; line-height: 1.7; }
+  .signature-zone { display: flex; justify-content: space-between; margin-top: 24px; gap: 20px; }
+  .sig-box { flex: 1; border-top: 1px solid #ccc; padding-top: 8px; font-size: 7.5pt; color: #555; text-align: center; height: 50px; }
 </style>
 </head>
 <body>
+
 <div class="header">
-  <div>
-    <div class="garage-name">{{ cfg.nom_garage if cfg else 'Duka Auto' }}</div>
-    <div class="garage-info">
-      {% if cfg and cfg.slogan %}<div>{{ cfg.slogan }}</div>{% endif %}
-      {% if cfg and cfg.adresse %}<div>{{ cfg.adresse }}</div>{% endif %}
-      {% if cfg and cfg.telephone %}<div>Tél : {{ cfg.telephone }}</div>{% endif %}
-      {% if cfg and cfg.numero_nif %}<div>NIF : {{ cfg.numero_nif }}</div>{% endif %}
+  <div class="garage-left">
+    {% if logo_base64 %}
+      <img src="{{ logo_base64 }}" class="garage-logo" alt="logo">
+    {% else %}
+      <div class="garage-logo-placeholder">G</div>
+    {% endif %}
+    <div>
+      <div class="garage-name">{{ cfg.nom_garage if cfg else 'Duka Auto' }}</div>
+      {% if cfg and cfg.slogan %}<div class="garage-slogan">{{ cfg.slogan }}</div>{% endif %}
+      <div class="garage-detail">
+        {% if cfg and cfg.adresse %}{{ cfg.adresse }}<br>{% endif %}
+        {% if cfg and cfg.telephone %}Tel : {{ cfg.telephone }}<br>{% endif %}
+        {% if cfg and cfg.email %}{{ cfg.email }}<br>{% endif %}
+        {% if cfg and cfg.numero_nif %}NIF : {{ cfg.numero_nif }}<br>{% endif %}
+        {% if cfg and cfg.numero_rc %}RC : {{ cfg.numero_rc }}{% endif %}
+      </div>
     </div>
   </div>
-  <div class="devis-title">
-    <h2>DEVIS</h2>
-    <div class="num">{{ devis.numero_devis }}</div>
-    <div class="validity">Date : {{ devis.date_devis.strftime('%d/%m/%Y') }}</div>
-    {% if devis.date_validite %}
-    <div class="validity">Valable jusqu'au : {{ devis.date_validite.strftime('%d/%m/%Y') }}</div>
-    {% endif %}
+  <div class="devis-title-box">
+    <div class="devis-label">DEVIS</div>
+    <div class="devis-num">{{ devis.numero_devis }}</div>
+    <div class="devis-meta">
+      Date : {{ devis.date_devis.strftime('%d/%m/%Y') }}<br>
+      {% if devis.date_validite %}Valable jusqu au : {{ devis.date_validite.strftime('%d/%m/%Y') }}{% endif %}
+    </div>
+    <span class="devis-statut">{{ devis.statut.upper() }}</span>
   </div>
 </div>
 
 <div class="info-grid">
   <div class="info-box">
-    <h4>Client</h4>
+    <div class="info-box-title">Client</div>
     <p><strong>{{ devis.vehicule.client.nom_complet }}</strong></p>
-    {% if devis.vehicule.client.telephone %}<p>Tél : {{ devis.vehicule.client.telephone }}</p>{% endif %}
+    {% if devis.vehicule.client.telephone %}<p>Tel : {{ devis.vehicule.client.telephone }}</p>{% endif %}
+    {% if devis.vehicule.client.telephone2 %}<p>Tel 2 : {{ devis.vehicule.client.telephone2 }}</p>{% endif %}
     {% if devis.vehicule.client.adresse %}<p>{{ devis.vehicule.client.adresse }}, {{ devis.vehicule.client.ville }}</p>{% endif %}
+    {% if devis.vehicule.client.nom_entreprise %}<p>Entreprise : {{ devis.vehicule.client.nom_entreprise }}</p>{% endif %}
   </div>
   <div class="info-box">
-    <h4>Véhicule</h4>
-    <p><strong>{{ devis.vehicule.immatriculation }}</strong></p>
-    <p>{{ devis.vehicule.marque }} {{ devis.vehicule.modele }} {{ devis.vehicule.annee or '' }}</p>
+    <div class="info-box-title">Vehicule</div>
+    <p><strong>Immat : {{ devis.vehicule.immatriculation }}</strong></p>
+    <p>{{ devis.vehicule.marque or '' }} {{ devis.vehicule.modele or '' }}</p>
+    <p>Annee : {{ devis.vehicule.annee or 'N/A' }}</p>
     {% if devis.vehicule.couleur %}<p>Couleur : {{ devis.vehicule.couleur }}</p>{% endif %}
-  </div>
-  <div class="info-box">
-    <h4>Technicien</h4>
-    <p>{{ devis.technicien.nom_complet if devis.technicien else 'Non assigné' }}</p>
   </div>
 </div>
 
 {% if devis.description_panne %}
-<p style="font-size:9pt;margin-bottom:14px;"><strong>Travaux demandés :</strong> {{ devis.description_panne }}</p>
+<div class="travaux-box">
+  <div class="travaux-title">Travaux a effectuer</div>
+  <div class="travaux-text">{{ devis.description_panne }}</div>
+</div>
 {% endif %}
 
 <table>
   <thead>
     <tr>
-      <th style="width:50%;">Désignation</th>
-      <th style="width:12%;text-align:center;">Qté</th>
-      <th style="width:18%;text-align:right;">Prix unitaire</th>
-      <th style="width:20%;text-align:right;">Sous-total</th>
+      <th style="width:6%;" class="center">N</th>
+      <th style="width:42%;">Designation</th>
+      <th style="width:12%;" class="center">Source</th>
+      <th style="width:8%;" class="center">Qte</th>
+      <th style="width:16%;" class="right">Prix unitaire</th>
+      <th style="width:16%;" class="right">Sous-total</th>
     </tr>
   </thead>
   <tbody>
-    {% for l in devis.lignes %}
+    {% for l in lignes_pdf %}
     <tr>
+      <td class="td-center" style="color:#888;">{{ loop.index }}</td>
       <td>{{ l.designation }}</td>
-      <td style="text-align:center;">{{ l.quantite }}</td>
-      <td style="text-align:right;">{{ "{:,.0f}".format(l.prix_unitaire).replace(",", " ") }} FBu</td>
-      <td style="text-align:right;">{{ "{:,.0f}".format(l.sous_total).replace(",", " ") }} FBu</td>
+      <td class="td-center">
+        {% if l.type_ligne == 'stock' %}<span class="type-badge type-stock">Stock</span>
+        {% elif l.type_ligne == 'externe' %}<span class="type-badge type-externe">Externe</span>
+        {% else %}<span class="type-badge type-service">Service</span>{% endif %}
+      </td>
+      <td class="td-center">{{ l.quantite }}</td>
+      <td class="td-right">{{ "{:,.0f}".format(l.prix_unitaire).replace(",", " ") }} FBu</td>
+      <td class="td-right" style="font-weight:600;">{{ "{:,.0f}".format(l.sous_total).replace(",", " ") }} FBu</td>
     </tr>
     {% endfor %}
-    {% if float(devis.montant_mo) > 0 %}
+    {% if montant_mo > 0 %}
     <tr>
-      <td><em>Main d'œuvre</em></td>
-      <td style="text-align:center;">1</td>
-      <td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_mo).replace(",", " ") }} FBu</td>
-      <td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_mo).replace(",", " ") }} FBu</td>
+      <td class="td-center" style="color:#888;">{{ lignes_pdf|length + 1 }}</td>
+      <td>Main d oeuvre</td>
+      <td class="td-center"><span class="type-badge type-service">Service</span></td>
+      <td class="td-center">1</td>
+      <td class="td-right">{{ "{:,.0f}".format(montant_mo).replace(",", " ") }} FBu</td>
+      <td class="td-right" style="font-weight:600;">{{ "{:,.0f}".format(montant_mo).replace(",", " ") }} FBu</td>
     </tr>
     {% endif %}
   </tbody>
-  <tfoot>
-    <tr><td colspan="3" style="text-align:right;color:#555;">Total HT</td><td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_ht).replace(",", " ") }} FBu</td></tr>
-    <tr><td colspan="3" style="text-align:right;color:#555;">TVA {{ devis.taux_tva }}%</td><td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_tva).replace(",", " ") }} FBu</td></tr>
-    <tr class="total-row"><td colspan="3" style="text-align:right;">TOTAL TTC</td><td style="text-align:right;">{{ "{:,.0f}".format(devis.montant_ttc).replace(",", " ") }} FBu</td></tr>
-  </tfoot>
+</table>
+
+<table class="totaux-table">
+  <tr>
+    <td class="label">Total HT</td>
+    <td class="val">{{ "{:,.0f}".format(montant_ht).replace(",", " ") }} FBu</td>
+  </tr>
+  <tr>
+    <td class="label">TVA {{ taux_tva|int }}% (OBR)</td>
+    <td class="val">{{ "{:,.0f}".format(montant_tva).replace(",", " ") }} FBu</td>
+  </tr>
+  <tr class="total-ttc">
+    <td class="label" style="color:#fff;">TOTAL TTC</td>
+    <td class="val" style="color:#fff;">{{ "{:,.0f}".format(montant_ttc).replace(",", " ") }} FBu</td>
+  </tr>
 </table>
 
 {% if devis.notes %}
-<p style="font-size:8.5pt;color:#555;margin-top:10px;"><strong>Notes :</strong> {{ devis.notes }}</p>
+<p style="margin-top:12px;font-size:7.5pt;color:#666;font-style:italic;">Note : {{ devis.notes }}</p>
 {% endif %}
 
-<div class="footer">
-  {{ cfg.nom_garage if cfg else 'Duka Auto' }} — Devis généré le {{ devis.date_devis.strftime('%d/%m/%Y') }}
-  {% if cfg and cfg.numero_nif %} — NIF : {{ cfg.numero_nif }}{% endif %}
+<div class="signature-zone">
+  <div class="sig-box">Signature Garage<br><em>{{ cfg.nom_garage if cfg else 'Duka Auto' }}</em></div>
+  <div class="sig-box">Signature Client<br><em>{{ devis.vehicule.client.nom_complet }}</em></div>
 </div>
+
+<div class="footer">
+  {{ cfg.nom_garage if cfg else 'Duka Auto' }}
+  {% if cfg and cfg.telephone %} - Tel : {{ cfg.telephone }}{% endif %}
+  {% if cfg and cfg.numero_nif %} - NIF : {{ cfg.numero_nif }}{% endif %}
+  <br>Devis {{ devis.numero_devis }} - Genere le {{ devis.date_devis.strftime('%d/%m/%Y') }}
+</div>
+
 </body>
 </html>
